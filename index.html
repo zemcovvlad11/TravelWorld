@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelGo - Агенція подорожей</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script defer src="js/script.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">✈️ TravelGo</div>
+            <ul class="nav-menu">
+                <li><a href="#home">Головна</a></li>
+                <li><a href="#promotions">Акції</a></li>
+                <li><a href="#destinations">Напрями</a></li>
+                <li><a href="#contact">Контакти</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" title="Змінити тему">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button class="login-btn" id="loginBtn">Вхід</button>
+                <button class="signup-btn" id="signupBtn">Реєстрація</button>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeLogin">&times;</span>
+            <h2>Вхід до аккаунту</h2>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль:</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="rememberMe" name="remember">
+                    <label for="rememberMe">Запам'ятати мене</label>
+                </div>
+                <button type="submit" class="submit-btn">Увійти</button>
+                <p class="form-switch">Немаєте аккаунту? <a href="#" id="switchToSignup">Зареєструйтеся</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeSignup">&times;</span>
+            <h2>Реєстрація нового аккаунту</h2>
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="signupName">Ім'я:</label>
+                    <input type="text" id="signupName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email:</label>
+                    <input type="email" id="signupEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Пароль:</label>
+                    <input type="password" id="signupPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupConfirm">Підтвердити пароль:</label>
+                    <input type="password" id="signupConfirm" name="confirm" required>
+                </div>
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="agreeTerms" name="terms" required>
+                    <label for="agreeTerms">Я погоджуюся з умовами обслуговування</label>
+                </div>
+                <button type="submit" class="submit-btn">Зареєструватися</button>
+                <p class="form-switch">Вже маєте аккаунту? <a href="#" id="switchToLogin">Увійдіть</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Profile Menu (shown after login) -->
+    <div id="userProfile" class="user-profile hidden">
+        <div class="profile-menu">
+            <div class="profile-header">
+                <p id="userNameDisplay"></p>
+            </div>
+            <ul class="profile-options">
+                <li><a href="#" id="myBookings">📅 Мої бронювання</a></li>
+                <li><a href="#" id="myProfile">👤 Мій профіль</a></li>
+                <li><a href="#" id="settings">⚙️ Налаштування</a></li>
+                <li><hr></li>
+                <li><a href="#" id="logoutBtn">🚪 Вийти</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Відкрий світ<br><span class="gradient-text">разом з нами</span></h1>
+            <p class="hero-subtitle">Найкращі пропозиції для незабутніх подорожей по всьому світу</p>
+            <button class="cta-button">Дивитися пакети</button>
+        </div>
+        <div class="hero-visual">
+            <div class="floating-card card-1">
+                <span class="destination-emoji">🏖️</span>
+                <p>Карибійські острови</p>
+            </div>
+            <div class="floating-card card-2">
+                <span class="destination-emoji">🗻</span>
+                <p>Азійські вершини</p>
+            </div>
+            <div class="floating-card card-3">
+                <span class="destination-emoji">🏛️</span>
+                <p>Європейські міста</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promotions Section -->
+    <section id="promotions" class="promotions">
+        <div class="section-header">
+            <h2>🎉 Спеціальні пропозиції</h2>
+            <p>Обмежені за часом акції на найвідпрацьовані маршрути</p>
+        </div>
+
+        <div class="promotions-grid">
+            <!-- Promo Card 1 -->
+            <div class="promo-card">
+                <div class="promo-badge">-35%</div>
+                <div class="promo-image promo-1"></div>
+                <div class="promo-content">
+                    <h3>Мальдіви - Рай на землі</h3>
+                    <p class="promo-description">Білі пляжі та кристально чисті вода. Ідеально для медового місяця.</p>
+                    <div class="price-info">
+                        <span class="old-price">$2,890</span>
+                        <span class="new-price">$1,879</span>
+                    </div>
+                    <div class="trip-details">
+                        <span>🌴 7 днів</span>
+                        <span>🏨 5 зірок</span>
+                        <span>✈️ Перельоти включені</span>
+                    </div>
+                    <button class="book-btn">Забронювати</button>
+                </div>
+            </div>
+
+            <!-- Promo Card 2 -->
+            <div class="promo-card">
+                <div class="promo-badge">-28%</div>
+                <div class="promo-image promo-2"></div>
+                <div class="promo-content">
+                    <h3>Японія - Країна восходу</h3>
+                    <p class="promo-description">Токіо, Киото та священні храми. Розкриймо загадки Сходу.</p>
+                    <div class="price-info">
+                        <span class="old-price">$3,450</span>
+                        <span class="new-price">$2,484</span>
+                    </div>
+                    <div class="trip-details">
+                        <span>🗾 10 днів</span>
+                        <span>🏨 4 зірки</span>
+                        <span>✈️ Перельоти включені</span>
+                    </div>
+                    <button class="book-btn">Забронювати</button>
+                </div>
+            </div>
+
+            <!-- Promo Card 3 -->
+            <div class="promo-card">
+                <div class="promo-badge">-42%</div>
+                <div class="promo-image promo-3"></div>
+                <div class="promo-content">
+                    <h3>Таїланд - Країна посмішок</h3>
+                    <p class="promo-description">Бангкок, Паттайя та острови. Екзотика та адреналін.</p>
+                    <div class="price-info">
+                        <span class="old-price">$1,890</span>
+                        <span class="new-price">$1,096</span>
+                    </div>
+                    <div class="trip-details">
+                        <span>🌏 8 днів</span>
+                        <span>🏨 4 зірки</span>
+                        <span>✈️ Перельоти включені</span>
+                    </div>
+                    <button class="book-btn">Забронювати</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Destinations Section -->
+    <section id="destinations" class="destinations">
+        <div class="section-header">
+            <h2>🌍 Популярні напрями</h2>
+            <p>Виберіть свою наступну приключення</p>
+        </div>
+
+        <div class="destinations-grid">
+            <div class="destination-card">
+                <div class="dest-image dest-1"></div>
+                <h3>Італія</h3>
+                <p>Романтичні вулиці Рима та Венеції</p>
+                <a href="#" class="dest-link">Дізнатися більше →</a>
+            </div>
+            <div class="destination-card">
+                <div class="dest-image dest-2"></div>
+                <h3>Кенія</h3>
+                <p>Сафарі та дикої природи Африки</p>
+                <a href="#" class="dest-link">Дізнатися більше →</a>
+            </div>
+            <div class="destination-card">
+                <div class="dest-image dest-3"></div>
+                <h3>Канада</h3>
+                <p>Гірські озера та дикі ліса</p>
+                <a href="#" class="dest-link">Дізнатися більше →</a>
+            </div>
+            <div class="destination-card">
+                <div class="dest-image dest-4"></div>
+                <h3>Єгипет</h3>
+                <p>Піраміди та давньоєгипетські скарби</p>
+                <a href="#" class="dest-link">Дізнатися більше →</a>
+            </div>
+            <div class="destination-card">
+                <div class="dest-image dest-5"></div>
+                <h3>Австралія</h3>
+                <p>Великий бар'єрний риф та Сідней</p>
+                <a href="#" class="dest-link">Дізнатися більше →</a>
+            </div>
+            <div class="destination-card">
+                <div class="dest-image dest-6"></div>
+                <h3>Бразилія</h3>
+                <p>Карнавали та Амазонські джунглі</p>
+                <a href="#" class="dest-link">Дізнатися більше →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="why-us">
+        <div class="section-header">
+            <h2>Чому вибирають TravelGo?</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>100% Безпека</h3>
+                <p>Гарантована страховка та цілодобова підтримка</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Кращі ціни</h3>
+                <p>Гарантія найнижчої ціни або повернення різниці</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👨‍💼</div>
+                <h3>Експерти</h3>
+                <p>Професійні консультанти з 15+ років досвіду</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎁</div>
+                <h3>Бонус програма</h3>
+                <p>Накопичуйте бали за кожне бронювання</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <div class="newsletter-content">
+            <h2>Підпишись на наші пропозиції</h2>
+            <p>Отримуй першим інформацію про нові акції та екскурсії</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Введи свою e-mail адресу" required>
+                <button type="submit">Підписатися</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>TravelGo</h4>
+                <p>Ваш партнер у мандрах по світу</p>
+            </div>
+            <div class="footer-section">
+                <h4>Контакти</h4>
+                <p>📞 +38 (044) 123-45-67</p>
+                <p>📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="11787f777e5165637067747d767e3f6470">[email&#160;protected]</a></p>
+                <p>📍 Київ, вул. Хрещатик, 15</p>
+            </div>
+            <div class="footer-section">
+                <h4>Соціальні мережі</h4>
+                <div class="social-links">
+                    <a href="#">Facebook</a>
+                    <a href="#">Instagram</a>
+                    <a href="#">YouTube</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Документи</h4>
+                <div class="footer-links">
+                    <a href="#">Політика приватності</a>
+                    <a href="#">Умови користування</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TravelGo. Вс�
