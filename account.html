@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мій Обліковий запис - TravelGo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/account.css">
+    <script src="js/script.js" defer></script>
+    <script src="js/booking-helpers.js" defer></script>
+    <script src="js/account.js" defer></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">✈️ TravelGo</div>
+            <ul class="nav-menu">
+                <li><a href="index.html#home">Головна</a></li>
+                <li><a href="index.html#promotions">Акції</a></li>
+                <li><a href="trips.html">Всі поїздки</a></li>
+                <li><a href="index.html#contact">Контакти</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" title="Змінити тему">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button class="accounts-btn hidden" id="accountsBtn" title="Мої облікові записи">🏪</button>
+                <button class="login-btn" id="loginBtn">Вхід</button>
+                <button class="signup-btn" id="signupBtn">Реєстрація</button>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeLogin">&times;</span>
+            <h2>Вхід до аккаунту</h2>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль:</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="rememberMe" name="remember">
+                    <label for="rememberMe">Запам'ятати мене</label>
+                </div>
+                <button type="submit" class="submit-btn">Увійти</button>
+                <p class="form-switch">Немаєте аккаунту? <a href="#" id="switchToSignup">Зареєструйтеся</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeSignup">&times;</span>
+            <h2>Реєстрація нового аккаунту</h2>
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="signupName">Ім'я:</label>
+                    <input type="text" id="signupName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email:</label>
+                    <input type="email" id="signupEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Пароль:</label>
+                    <input type="password" id="signupPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupConfirm">Підтвердити пароль:</label>
+                    <input type="password" id="signupConfirm" name="confirm" required>
+                </div>
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="agreeTerms" name="terms" required>
+                    <label for="agreeTerms">Я погоджуюся з умовами обслуговування</label>
+                </div>
+                <button type="submit" class="submit-btn">Зареєструватися</button>
+                <p class="form-switch">Вже маєте аккаунту? <a href="#" id="switchToLogin">Увійдіть</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Profile Menu (shown after login) -->
+    <div id="userProfile" class="user-profile hidden">
+        <div class="profile-menu">
+            <div class="profile-header">
+                <p id="userNameDisplay"></p>
+            </div>
+            <ul class="profile-options">
+                <li><a href="#" id="myBookings">📅 Мої бронювання</a></li>
+                <li><a href="#" id="myProfile">👤 Мій профіль</a></li>
+                <li><a href="#" id="settings">⚙️ Налаштування</a></li>
+                <li><hr></li>
+                <li><a href="#" id="logoutBtn">🚪 Вийти</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Account Container -->
+    <div class="account-container">
+        <!-- Sidebar Navigation -->
+        <aside class="account-sidebar">
+            <div class="account-user-card">
+                <div class="user-avatar">👤</div>
+                <div class="user-info">
+                    <h3 id="sidebarUserName">Користувач</h3>
+                    <p id="sidebarUserEmail">email@example.com</p>
+                </div>
+            </div>
+
+            <nav class="account-menu">
+                <a href="#profile" class="menu-item active" data-section="profile">
+                    <span class="menu-icon">👤</span> Профіль
+                </a>
+                <a href="#bookings" class="menu-item" data-section="bookings">
+                    <span class="menu-icon">📅</span> Мої бронювання
+                </a>
+                <a href="#preferences" class="menu-item" data-section="preferences">
+                    <span class="menu-icon">⚙️</span> Налаштування
+                </a>
+                <a href="#security" class="menu-item" data-section="security">
+                    <span class="menu-icon">🔐</span> Безпека
+                </a>
+                <a href="#notifications" class="menu-item" data-section="notifications">
+                    <span class="menu-icon">🔔</span> Сповіщення
+                </a>
+                <hr>
+                <a href="#" class="menu-item logout-btn" id="sidebarLogout">
+                    <span class="menu-icon">🚪</span> Вийти
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="account-content">
+            <!-- Profile Section -->
+            <section id="profile" class="account-section active">
+                <div class="section-header">
+                    <h2>📋 Мій профіль</h2>
+                    <p>Керуйте своєю особистою інформацією</p>
+                </div>
+
+                <form id="profileForm" class="profile-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fullName">Повне ім'я *</label>
+                            <input type="text" id="fullName" name="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Номер телефону</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+38 (0XX) XXX-XX-XX">
+                        </div>
+                        <div class="form-group">
+                            <label for="birthDate">Дата народження</label>
+                            <input type="date" id="birthDate" name="birthDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="country">Країна</label>
+                            <select id="country" name="country">
+                                <option value="">Виберіть країну</option>
+                                <option value="Ukraine">Україна</option>
+                                <option value="Poland">Польща</option>
+                                <option value="Germany">Німеччина</option>
+                                <option value="France">Франція</option>
+                                <option value="Italy">Італія</option>
+                                <option value="Spain">Іспанія</option>
+                                <option value="UK">Великобританія</option>
+                                <option value="Other">Інша</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">Місто</label>
+                            <input type="text" id="city" name="city">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bio">Про себе</label>
+                        <textarea id="bio" name="bio" rows="4" placeholder="Розповіді про себе та ваші бажання..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 Зберегти зміни</button>
+                        <button type="reset" class="btn btn-secondary">↩️ Скасувати</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Bookings Section -->
+            <section id="bookings" class="account-section">
+                <div class="section-header">
+                    <h2>📅 Мої бронювання</h2>
+                    <p>Переглядайте та керуйте своїми активними and минулими бронюваннями</p>
+                </div>
+
+                <div class="bookings-filter">
+                    <button class="filter-btn active" data-filter="all">Усі</button>
+                    <button class="filter-btn" data-filter="active">Активні</button>
+                    <button class="filter-btn" data-filter="past">Завершені</button>
+                    <button class="filter-btn" data-filter="cancelled">Скасовані</button>
+                </div>
+
+                <div id="bookingsList" class="bookings-list">
+                    <div class="no-bookings">
+                        <p>📭 У вас поки немає бронювань</p>
+                        <a href="index.html#promotions" class="btn btn-primary">Почати бронювання</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preferences Section -->
+            <section id="preferences" class="account-section">
+                <div class="section-header">
+                    <h2>⚙️ Налаштування</h2>
+                    <p>Налаштуйте ваш досвід роботи з TravelGo</p>
+                </div>
+
+                <form id="preferencesForm" class="preferences-form">
+                    <div class="preference-group">
+                        <h3>🎨 Внешний вид</h3>
+                        <div class="form-group">
+                            <label for="theme">Тема:</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="theme" value="light"> Світла
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="theme" value="dark"> Темна
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="theme" value="auto"> Автоматична
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="preference-group">
+                        <h3>🌍 Мова та регіон</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="language">Мова сайту:</label>
+                                <select id="language" name="language">
+                                    <option value="uk">Українська</option>
+                                    <option value="en">English</option>
+                                    <option value="pl">Polski</option>
+                                    <option value="de">Deutsch</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="currency">Валюта:</label>
+                                <select id="currency" name="currency">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="UAH">UAH (₴)</option>
+                                    <option value="PLN">PLN (zł)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="preference-group">
+                        <h3>🎯 Подорожевані цілі</h3>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="interests" value="beach"> 🏖️ Пляжні курорти
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="interests" value="adventure"> 🏔️ Пригоди
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="interests" value="culture"> 🏛️ Культурні пам'ятки
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="interests" value="shopping"> 🛍️ Шопінг
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="interests" value="food"> 🍽️ Кулінарія
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="interests" value="nightlife"> 🎉 Ночна життя
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 Зберегти налаштування</button>
+                        <button type="reset" class="btn btn-secondary">↩️ Скасувати</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Security Section -->
+            <section id="security" class="account-section">
+                <div class="section-header">
+                    <h2>🔐 Безпека аккаунту</h2>
+                    <p>Керуйте паролем та параметрами безпеки</p>
+                </div>
+
+                <form id="securityForm" class="security-form">
+                    <div class="security-group">
+                        <h3>🔑 Змінити пароль</h3>
+                        <div class="form-group">
+                            <label for="currentPassword">Поточний пароль *</label>
+                            <input type="password" id="currentPassword" name="currentPassword">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">Новий пароль *</label>
+                            <input type="password" id="newPassword" name="newPassword" placeholder="Мінімум 8 символів">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Підтвердити новий пароль *</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="changePasswordBtn">🔄 Змінити пароль</button>
+                    </div>
+
+                    <div class="security-group">
+                        <h3>🖥️ Активні сеанси</h3>
+                        <div id="sessionsList" class="sessions-list">
+                            <div class="session-item">
+                                <div class="session-info">
+                                    <p class="device-name">💻 Цей пристрій</p>
+                                    <p class="session-time">Активний зараз</p>
+                                </div>
+                                <button type="button" class="btn btn-small">Вихід</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="security-group">
+                        <h3>⚠️ Небезпека</h3>
+                        <button type="button" class="btn btn-danger" id="deleteAccountBtn">🗑️ Видалити обліковий запис</button>
+                        <p class="danger-text">Ця дія необратима! Весь ваш непрочитаний вміст буде видалено.</p>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Notifications Section -->
+            <section id="notifications" class="account-section">
+                <div class="section-header">
+                    <h2>🔔 Сповіщення</h2>
+                    <p>Виберіть, які сповіщення ви хочете отримувати</p>
+                </div>
+
+                <form id="notificationsForm" class="notifications-form">
+                    <div class="notification-group">
+                        <h3>📧 Email сповіщення</h3>
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <p class="toggle-title">Спеціальні пропозиції та акції</p>
+                                <p class="toggle-desc">Отримуйте інформацію про нові акції та спеціальні пропозиції</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="offers">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <p class="toggle-title">Оновлення про мої бронювання</p>
+                                <p class="toggle-desc">Сповіщення про зміни та оновлення ваших бронювань</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="bookingUpdates">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <p class="toggle-title">Новини та статті блогу</p>
+                                <p class="toggle-desc">Статті про подорожі та поради від наших експертів</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="newsletter">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="notification-group">
+                        <h3>🔔 Push-сповіщення</h3>
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <p class="toggle-title">Критичні оновлення</p>
+                                <p class="toggle-desc">Важливі сповіщення про ваш аккаунт та бронювання</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="criticalNotifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <p class="toggle-title">Нові пропозиції поблизу вас</p>
+                                <p class="toggle-desc">Отримуйте сповіщення про гарячі пропозиції в вашому регіоні</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="nearbyOffers">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 Зберегти налаштування</button>
+                        <button type="reset" class="btn btn-secondary">↩️ Скасувати</button>
+                    </div>
+                </form>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>TravelGo</h4>
+                <p>Ваш партнер у мандрах по світу</p>
+            </div>
+            <div class="footer-section">
+                <h4>Контакти</h4>
+                <p>📞 +38 (044) 123-45-67</p>
+                <p>📧 info@travelgo.ua</p>
+                <p>📍 Київ, вул. Хрещатик, 15</p>
+            </div>
+            <div class="footer-section">
+                <h4>Соціальні мережі</h4>
+                <div class="social-links">
+                    <a href="#">Facebook</a>
+                    <a href="#">Instagram</a>
+                    <a href="#">YouTube</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Документи</h4>
+                <div class="footer-links">
+                    <a href="#">Політика приватності</a>
+                    <a href="#">Умови користування</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TravelGo. Всі права захищені.</p>
+        </div>
+    </footer>
+</body>
+</html>

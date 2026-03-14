@@ -3,6 +3,281 @@ const themeToggle = document.getElementById('themeToggle');
 const htmlElement = document.documentElement;
 const body = document.body;
 
+// ==================== COOKIE MANAGEMENT ====================
+
+// Set a cookie
+function setCookie(name, value, days = 365) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))}; ${expires}; path=/`;
+}
+
+// Get a cookie
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        if (cookie.indexOf(nameEQ) === 0) {
+            try {
+                return JSON.parse(decodeURIComponent(cookie.substring(nameEQ.length)));
+            } catch (e) {
+                return null;
+            }
+        }
+    }
+    return null;
+}
+
+// Delete a cookie
+function deleteCookie(name) {
+    setCookie(name, '', -1);
+}
+
+// ==================== CURRENCY EXCHANGE RATES ====================
+// Exchange rates relative to USD (updated for 2026)
+const CURRENCY_RATES = {
+    'USD': 1.0,
+    'EUR': 0.92,      // 1 USD = 0.92 EUR
+    'UAH': 41.5,      // 1 USD = 41.5 UAH (Hryvnia)
+    'PLN': 4.05       // 1 USD = 4.05 PLN (Zloty)
+};
+
+const CURRENCY_SYMBOLS = {
+    'USD': '$',
+    'EUR': '€',
+    'UAH': '₴',
+    'PLN': 'zł'
+};
+
+// ==================== CURRENCY CONVERSION ====================
+
+/**
+ * Convert price from USD to another currency
+ * @param {number} priceUSD - Price in USD
+ * @param {string} toCurrency - Target currency (USD, EUR, UAH, PLN)
+ * @returns {string} Formatted price with currency symbol
+ */
+function convertPrice(priceUSD, toCurrency = 'USD') {
+    if (!CURRENCY_RATES[toCurrency]) {
+        return `${priceUSD} USD`;
+    }
+    
+    const rate = CURRENCY_RATES[toCurrency];
+    const convertedPrice = priceUSD * rate;
+    const symbol = CURRENCY_SYMBOLS[toCurrency];
+    
+    // Format number with appropriate decimal places
+    let formatted;
+    if (toCurrency === 'UAH' || toCurrency === 'PLN') {
+        formatted = Math.round(convertedPrice).toLocaleString('uk-UA');
+    } else {
+        formatted = convertedPrice.toLocaleString('uk-UA', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    }
+    
+    return `${formatted} ${symbol}`;
+}
+
+/**
+ * Extract numeric price from price string
+ * @param {string} priceStr - Price string (e.g., "1,879 USD")
+ * @returns {number} Numeric price value
+ */
+function extractPriceNumber(priceStr) {
+    const match = priceStr.match(/[\d,]+/);
+    if (match) {
+        return parseFloat(match[0].replace(/,/g, ''));
+    }
+    return 0;
+}
+
+/**
+ * Get price in multiple currencies
+ */
+function getPriceInAllCurrencies(priceUSD) {
+    return {
+        USD: convertPrice(priceUSD, 'USD'),
+        EUR: convertPrice(priceUSD, 'EUR'),
+        UAH: convertPrice(priceUSD, 'UAH'),
+        PLN: convertPrice(priceUSD, 'PLN')
+    };
+}
+
+// ==================== BOOKING MANAGEMENT ====================
+
+// Save booking to both localStorage and cookies
+function saveBooking(bookingData) {
+    const priceNumber = extractPriceNumber(bookingData.price);
+    
+    const booking = {
+        id: Date.now(),
+        destination: bookingData.destination,
+        priceUSD: priceNumber,
+        priceDisplay: bookingData.price,
+        description: bookingData.description,
+        tripDays: bookingData.tripDays,
+        tripStars: bookingData.tripStars,
+        included: bookingData.included,
+        bookingDate: new Date().toISOString(),
+        status: 'active',
+        userEmail: bookingData.userEmail,
+        startDate: bookingData.startDate || null,
+        endDate: bookingData.endDate || null,
+        cancelledDate: null,
+        finishedDate: null,
+        refundAmount: 0,
+        notes: ''
+    };
+    
+    // Get existing bookings
+    let bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+    
+    // Check if this booking already exists
+    const exists = bookings.some(b => 
+        b.destination === booking.destination && 
+        b.userEmail === booking.userEmail &&
+        b.status === 'active'
+    );
+    
+    if (!exists) {
+        // Add new booking
+        bookings.push(booking);
+        
+        // Save to localStorage
+        localStorage.setItem('userBookings', JSON.stringify(bookings));
+        
+        // Save to cookies (keep last 5 bookings in cookie for quick access)
+        const recentBookings = bookings.slice(-5);
+        setCookie('recentBookings', recentBookings, 365);
+        
+        return booking;
+    }
+    
+    return null;
+}
+
+// Get all bookings from localStorage
+function getAllBookings(userEmail = null) {
+    let bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+    
+    if (userEmail) {
+        bookings = bookings.filter(b => b.userEmail === userEmail);
+    }
+    
+    return bookings;
+}
+
+// Get recent bookings from cookies
+function getRecentBookings() {
+    return getCookie('recentBookings') || [];
+}
+
+// Cancel a booking with refund calculation
+function cancelBooking(bookingId, reason = '') {
+    let bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+    const booking = bookings.find(b => b.id == bookingId);
+    
+    if (booking && booking.status === 'active') {
+        const bookingDate = new Date(booking.bookingDate);
+        const today = new Date();
+        const daysUntilTrip = Math.floor((new Date(booking.startDate) - today) / (1000 * 60 * 60 * 24));
+        
+        // Calculate refund percentage based on cancellation timing
+        let refundPercentage = 0;
+        if (daysUntilTrip > 30) {
+            refundPercentage = 90; // 90% refund if cancelled 30+ days before
+        } else if (daysUntilTrip > 14) {
+            refundPercentage = 75; // 75% refund if cancelled 14-30 days before
+        } else if (daysUntilTrip > 7) {
+            refundPercentage = 50; // 50% refund if cancelled 7-14 days before
+        } else if (daysUntilTrip > 0) {
+            refundPercentage = 25; // 25% refund if cancelled less than 7 days before
+        } else {
+            refundPercentage = 0; // No refund if trip already started
+        }
+        
+        const refundAmount = (booking.priceUSD * refundPercentage) / 100;
+        
+        booking.status = 'cancelled';
+        booking.cancelledDate = new Date().toISOString();
+        booking.refundAmount = refundAmount;
+        booking.notes = reason;
+        
+        localStorage.setItem('userBookings', JSON.stringify(bookings));
+        
+        // Update cookie
+        const recentBookings = bookings.slice(-5);
+        setCookie('recentBookings', recentBookings, 365);
+        
+        return {
+            booking: booking,
+            refunded: true,
+            refundPercentage: refundPercentage,
+            refundAmount: refundAmount,
+            refundFormatted: convertPrice(refundAmount, 'USD')
+        };
+    }
+    
+    return null;
+}
+
+// Finish a booking (mark as completed)
+function finishBooking(bookingId, rating = 0, review = '') {
+    let bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+    const booking = bookings.find(b => b.id == bookingId);
+    
+    if (booking && booking.status === 'active') {
+        booking.status = 'finished';
+        booking.finishedDate = new Date().toISOString();
+        booking.rating = rating; // 1-5 stars
+        booking.review = review;
+        
+        localStorage.setItem('userBookings', JSON.stringify(bookings));
+        
+        // Update cookie
+        const recentBookings = bookings.slice(-5);
+        setCookie('recentBookings', recentBookings, 365);
+        
+        return booking;
+    }
+    
+    return null;
+}
+
+// Delete a booking permanently
+function deleteBooking(bookingId) {
+    let bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+    bookings = bookings.filter(b => b.id !== bookingId);
+    localStorage.setItem('userBookings', JSON.stringify(bookings));
+    
+    // Update cookie
+    const recentBookings = bookings.slice(-5);
+    setCookie('recentBookings', recentBookings, 365);
+}
+
+// Update booking status
+function updateBookingStatus(bookingId, status) {
+    let bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+    const booking = bookings.find(b => b.id === bookingId);
+    
+    if (booking) {
+        booking.status = status;
+        localStorage.setItem('userBookings', JSON.stringify(bookings));
+        
+        // Update cookie
+        const recentBookings = bookings.slice(-5);
+        setCookie('recentBookings', recentBookings, 365);
+        
+        return booking;
+    }
+    
+    return null;
+}
+
 // Load theme from localStorage on page load
 function loadTheme() {
     const savedTheme = localStorage.getItem('theme');
@@ -191,12 +466,21 @@ logoutBtn.addEventListener('click', (e) => {
 function updateAuthUI() {
     const user = localStorage.getItem('user');
     const rememberMe = localStorage.getItem('rememberMe');
+    const accountsBtn = document.getElementById('accountsBtn');
     
     if (user || rememberMe) {
         const userData = user ? JSON.parse(user) : { name: 'Користувач' };
         
         loginBtn.style.display = 'none';
         signupBtn.style.display = 'none';
+        
+        // Show accounts button
+        if (accountsBtn) {
+            accountsBtn.classList.remove('hidden');
+            accountsBtn.addEventListener('click', () => {
+                window.location.href = 'account.html';
+            });
+        }
         
         userProfile.classList.remove('hidden');
         document.getElementById('userNameDisplay').textContent = `👤 ${userData.name}`;
@@ -229,15 +513,48 @@ function updateAuthUI() {
         signupBtn.style.display = 'inline-block';
         userProfile.classList.add('hidden');
         
+        // Hide accounts button
+        if (accountsBtn) {
+            accountsBtn.classList.add('hidden');
+        }
+        
         const profileBtn = document.getElementById('profileBtn');
         if (profileBtn) profileBtn.remove();
     }
 }
 
-// Toggle profile menu
-function toggleProfileMenu(e) {
-    e.stopPropagation();
-    userProfile.classList.toggle('hidden');
+// Profile Options Links
+const myBookings = document.getElementById('myBookings');
+const myProfile = document.getElementById('myProfile');
+const settings = document.getElementById('settings');
+
+// Toggle profile menu visibility
+function toggleProfileMenu() {
+    const profileMenu = document.getElementById('userProfile');
+    if (profileMenu) {
+        profileMenu.classList.toggle('hidden');
+    }
+}
+
+if (myProfile) {
+    myProfile.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'account.html';
+    });
+}
+
+if (myBookings) {
+    myBookings.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'account.html';
+    });
+}
+
+if (settings) {
+    settings.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'account.html';
+    });
 }
 
 // Close profile menu when clicking outside
@@ -304,10 +621,41 @@ bookButtons.forEach(button => {
             return;
         }
         
-        const cardTitle = this.closest('.promo-card').querySelector('h3').textContent;
-        const cardPrice = this.closest('.promo-card').querySelector('.new-price').textContent;
+        const userData = JSON.parse(user);
+        const promoCard = this.closest('.promo-card');
+        const cardTitle = promoCard.querySelector('h3').textContent;
+        const cardPrice = promoCard.querySelector('.new-price').textContent;
+        const cardDescription = promoCard.querySelector('.promo-description').textContent;
+        const tripDetails = promoCard.querySelectorAll('.trip-details span');
         
-        showNotification(`✅ Ви вибрали: ${cardTitle}\nЦіна: ${cardPrice}\n\nСкоро наш менеджер зв'яжеться з вами!`);
+        // Extract trip details
+        let tripDays = '', tripStars = '', included = '';
+        tripDetails.forEach(detail => {
+            const text = detail.textContent.trim();
+            if (text.includes('днів') || text.includes('дня')) tripDays = text;
+            if (text.includes('зірок') || text.includes('зір')) tripStars = text;
+            if (text.includes('Перельоти')) included = text;
+        });
+        
+        // Create booking object
+        const bookingData = {
+            destination: cardTitle,
+            price: cardPrice,
+            description: cardDescription,
+            tripDays: tripDays,
+            tripStars: tripStars,
+            included: included,
+            userEmail: userData.email
+        };
+        
+        // Save booking
+        const savedBooking = saveBooking(bookingData);
+        
+        if (savedBooking) {
+            showNotification(`✅ Бронювання збережено!\n${cardTitle}\nЦіна: ${cardPrice}\n\nСкоро наш менеджер зв'яжеться з вами!`);
+        } else {
+            showNotification(`⚠️ Ви вже забронювали цей тур!\n${cardTitle}`);
+        }
     });
 });
 
